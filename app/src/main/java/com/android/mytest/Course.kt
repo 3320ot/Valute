@@ -2,6 +2,8 @@ package com.android.mytest
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
@@ -25,15 +27,16 @@ class Course : AppCompatActivity() {
     private var title : TextView? = null
     private var all : LinearLayout? = null
     private var size = 0
+    private var save : SharedPreferences? = null
 
     override fun onStart() {
         super.onStart()
+        save = getSharedPreferences("DATA", Context.MODE_PRIVATE)
+        text = save?.getString("json",text)!!
         update()
         Thread{
             while(true){
-                runOnUiThread{
-                    update()
-                }
+                update()
                 Thread.sleep(15_000)
             }
         }.start()
@@ -58,6 +61,7 @@ class Course : AppCompatActivity() {
 //                runOnUiThread { Toast.makeText(this, "Проверьте правильность ссылки или доступность интернет соединения", Toast.LENGTH_SHORT).show() }
             }
             if (text != ""){
+                save?.edit()?.putString("json", text)?.apply()
                 name[0] = Regex("""\d\d\d\d-\d\d-\d\d""").find(text)?.groupValues?.get(0) ?: String()
                 name[1] = Regex("""\d\d:\d\d""").find(text)?.groupValues?.get(0) ?: String()
                 n = "Курс валют на: ${name[0]} ${name[1]}"
