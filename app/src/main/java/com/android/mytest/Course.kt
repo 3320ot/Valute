@@ -109,10 +109,10 @@ class Course : AppCompatActivity() {
                                 but.text = "Конвертировать"
                                 setPadding(12)
                                 but.setOnClickListener{
-                                    b.text = (conv.text.toString().toFloat()*values.text.toString().toFloat()).toString()
+                                    b.text = (conv.text.toString().toFloat()/values.text.toString().toFloat()).toString()
                                 }
                             }
-                            conv.hint = "Введите сумму в рублях"
+                            conv.hint = "Введите сумму в рувлях"
                             conv.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
                             pole.apply {
                                 setHorizontalGravity(Gravity.CENTER_HORIZONTAL)
