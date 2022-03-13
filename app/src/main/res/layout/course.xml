@@ -17,8 +17,8 @@
         android:layout_height="wrap_content"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_margin="10sp"
         android:id="@+id/update"
+        android:layout_margin="10sp"
         android:src="@drawable/update"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -27,7 +27,6 @@
         android:contentDescription="@string/updater" />
 
     <ScrollView
-        android:id="@+id/scroll"
         android:paddingBottom="12sp"
         android:paddingTop="16sp"
         android:isScrollContainer="true"

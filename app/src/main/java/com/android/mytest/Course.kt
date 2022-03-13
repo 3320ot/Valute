@@ -9,35 +9,33 @@ import android.text.InputType
 import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.net.URL
 
-
 var text = ""
 var name = arrayOf("error", "error")
 var n = ""
+var updateText = "Проверьте правильность ссылки и доступность интернет соединения"
 
 class Course : AppCompatActivity() {
     private var title : TextView? = null
     private var all : LinearLayout? = null
     private var size = 0
     private var save : SharedPreferences? = null
+    private var updateButton : FloatingActionButton? = null
 
     override fun onStart() {
         super.onStart()
-        save = getSharedPreferences("DATA", Context.MODE_PRIVATE)
-        text = save?.getString("json",text)!!
+        save = getSharedPreferences("DATA", Context.MODE_PRIVATE)   //Вызов данных из памяти
+        text = save?.getString("json",text)!!                         //Вызов данных о text
         update()
         Thread{
             while(true){
                 update()
-                Thread.sleep(15_000)
+                Thread.sleep(25_000)    //Частота обновления информации
             }
         }.start()
     }
@@ -47,31 +45,32 @@ class Course : AppCompatActivity() {
 
         title = findViewById(R.id.name)
         all = findViewById(R.id.all)
-        findViewById<FloatingActionButton>(R.id.update).setOnClickListener {
+        updateButton?.setOnClickListener {
             update()
+            Toast.makeText(this, updateText, Toast.LENGTH_SHORT).show()
         }
     }
     @SuppressLint("SetTextI18n")
     private fun update(){
         Thread {
             try {
-                text = URL("https://www.cbr-xml-daily.ru/daily_json.js").readText()
+                text = URL("https://www.cbr-xml-daily.ru/daily_json.js").readText()                       //Вызов ссылки и её одновременная проверка
+                updateText = "Курс актуален на ${name[0]} ${name[1]}"
             } catch (e: Exception) {
+                updateText = "Проверьте правильность ссылки и доступность интернет соединения"
                 Log.println(Log.ERROR, "Network error", e.stackTraceToString())
-//                runOnUiThread { Toast.makeText(this, "Проверьте правильность ссылки или доступность интернет соединения", Toast.LENGTH_SHORT).show() }
             }
             if (text != ""){
-                save?.edit()?.putString("json", text)?.apply()
-                name[0] = Regex("""\d\d\d\d-\d\d-\d\d""").find(text)?.groupValues?.get(0) ?: String()
-                name[1] = Regex("""\d\d:\d\d""").find(text)?.groupValues?.get(0) ?: String()
-                n = "Курс валют на: ${name[0]} ${name[1]}"
+                save?.edit()?.putString("json", text)?.apply()                                                 //Сохранение text
+                name[0] = Regex("""\d\d\d\d-\d\d-\d\d""").find(text)?.groupValues?.get(0) ?: String()   //Число
+                name[1] = Regex("""\d\d:\d\d""").find(text)?.groupValues?.get(0) ?: String()            //Время
+                n = "Курс валют на: ${name[0]} ${name[1]}"                                                     //Название страницы отображается отсюда
                 size = Regex("ID").findAll(text).count()
-                val code_list : Sequence<MatchResult> = Regex("CharCode\": \".+\"").findAll(text)
-                val name_list : Sequence<MatchResult> = Regex("Name\": \".+\"").findAll(text)
-                val value_list : Sequence<MatchResult> = Regex("Value\": .+,").findAll(text)
+                val codeList : Sequence<MatchResult> = Regex("CharCode\": \".+\"").findAll(text)        //Код валют
+                val nameList : Sequence<MatchResult> = Regex("Name\": \".+\"").findAll(text)            //Название валюты с сайта
+                val valueList : Sequence<MatchResult> = Regex("Value\": .+,").findAll(text)             //Цена единицы в рублях
 
                 runOnUiThread {
-
                     title?.text = n
                     all?.removeAllViews()
                     for (i in 1..size){
@@ -80,14 +79,14 @@ class Course : AppCompatActivity() {
                         position.orientation=LinearLayout.HORIZONTAL
                         position.dividerPadding=10
                         val code = TextView(this)
-                        code.text= code_list.elementAt(i-1).value.slice(IntRange(12, 14))
+                        code.text= codeList.elementAt(i-1).value.slice(IntRange(12, 14))
                         val names = TextView(this)
                         names.setPadding(20, 15, 20, 15)
-                        names.text= name_list.elementAt(i-1).value.slice(IntRange(8, name_list.elementAt(i-1).value.length-2))
-                        val values = TextView(this)
-                        values.text= value_list.elementAt(i-1).value.slice(IntRange(8, value_list.elementAt(i-1).value.length-2))
-
+                        names.text= nameList.elementAt(i-1).value.slice(IntRange(8, nameList.elementAt(i-1).value.length-2))
                         names.width = 400
+                        val values = TextView(this)
+                        values.text= valueList.elementAt(i-1).value.slice(IntRange(8, valueList.elementAt(i-1).value.length-2))
+
                         position.addView(code)
                         position.addView(names)
                         position.addView(values)
@@ -125,7 +124,6 @@ class Course : AppCompatActivity() {
                             converter.addContentView(pole, ViewGroup.LayoutParams(620, ViewGroup.LayoutParams.WRAP_CONTENT))
                             converter.show()
                         }
-
                         all?.addView(position)
                     }
                 }
