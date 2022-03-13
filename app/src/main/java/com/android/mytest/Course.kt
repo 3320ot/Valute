@@ -104,7 +104,7 @@ class Course : AppCompatActivity() {
                                 textAlignment = TextView.TEXT_ALIGNMENT_CENTER
                                 text=names.text
                             }
-                            b.text = "Сумма в рублях"
+                            b.text = "Сумма в ${code.text}"
                             but.apply{
                                 but.text = "Конвертировать"
                                 setPadding(12)
@@ -112,7 +112,7 @@ class Course : AppCompatActivity() {
                                     b.text = (conv.text.toString().toFloat()/values.text.toString().toFloat()).toString()
                                 }
                             }
-                            conv.hint = "Введите сумму в ${code.text}"
+                            conv.hint = "Введите сумму в рублях"
                             conv.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
                             pole.apply {
                                 setHorizontalGravity(Gravity.CENTER_HORIZONTAL)
